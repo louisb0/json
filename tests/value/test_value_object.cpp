@@ -59,6 +59,21 @@ TEST_F(object, operator_index_access) {
     EXPECT_TRUE(simple["bool"].as_boolean());
 }
 
+TEST_F(object, operator_default_create) {
+    json::value json = json::object();
+
+    json["new_arr"] = json::array({1, 2, 3});
+    EXPECT_EQ(json["new_arr"][2], 3);
+    EXPECT_EQ(json["dne"], nullptr);
+
+    json["new_obj"]["nested_key"] = 42;
+    EXPECT_EQ(json["new_obj"]["nested_key"], 42);
+
+    const auto &const_json = json;
+    EXPECT_THROW(const_json["also_dne"], json::access_error);
+    EXPECT_NO_THROW(const_json["new_arr"]);
+}
+
 TEST_F(object, other_as_methods_throw_type_error) {
     EXPECT_THROW(empty.as_boolean(), json::type_error);
     EXPECT_THROW(empty.as_number(), json::type_error);

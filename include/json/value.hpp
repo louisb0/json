@@ -82,6 +82,7 @@ private:
     std::unique_ptr<storage> m_storage;
 };
 
+inline value object() { return value(std::unordered_map<std::string, value>()); }
 inline value object(std::initializer_list<std::pair<std::string, value>> init) {
     return value(init);
 }

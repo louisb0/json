@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <variant>
@@ -212,8 +213,20 @@ const value &value::operator[](size_t index) const {
     return arr[index];
 }
 
-value &value::operator[](const std::string &key) { return as_object()[key]; }
-const value &value::operator[](const std::string &key) const { return as_object().at(key); }
+value &value::operator[](const std::string &key) {
+    if (is_null()) {
+        *this = object();
+    }
+    return as_object()[key];
+}
+
+const value &value::operator[](const std::string &key) const {
+    try {
+        return as_object().at(key);
+    } catch (const std::out_of_range &) {
+        throw access_error("Key '" + key + "' not found in object.");
+    }
+}
 
 bool value::operator==(const value &other) const noexcept {
     if (type() != other.type()) {
