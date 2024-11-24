@@ -20,11 +20,11 @@ protected:
 
 // construction
 TEST_F(number, int_constructor_creates_number) {
-    EXPECT_EQ(int_value.type(), json::value::Type::Number);
+    EXPECT_EQ(int_value.type(), json::value_t::Number);
 }
 
 TEST_F(number, double_constructor_creates_number) {
-    EXPECT_EQ(double_value.type(), json::value::Type::Number);
+    EXPECT_EQ(double_value.type(), json::value_t::Number);
 }
 
 TEST_F(number, constructor_preserves_value) {

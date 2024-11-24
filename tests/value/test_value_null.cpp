@@ -18,15 +18,15 @@ protected:
 
 // construction
 TEST_F(null, default_constructor_creates_null) {
-    EXPECT_EQ(default_constructed.type(), json::value::Type::Null);
+    EXPECT_EQ(default_constructed.type(), json::value_t::Null);
 }
 
 TEST_F(null, nullptr_constructor_creates_null) {
-    EXPECT_EQ(nullptr_constructed.type(), json::value::Type::Null);
+    EXPECT_EQ(nullptr_constructed.type(), json::value_t::Null);
 }
 
 TEST_F(null, helper_function_creates_null) {
-    EXPECT_EQ(helper_constructed.type(), json::value::Type::Null);
+    EXPECT_EQ(helper_constructed.type(), json::value_t::Null);
 }
 
 // type checking

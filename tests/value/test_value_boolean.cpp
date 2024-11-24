@@ -18,9 +18,9 @@ protected:
 
 // construction
 TEST_F(boolean, constructor_creates_boolean) {
-    EXPECT_EQ(true_value.type(), json::value::Type::Boolean);
-    EXPECT_EQ(false_value.type(), json::value::Type::Boolean);
-    EXPECT_EQ(bool_constructed.type(), json::value::Type::Boolean);
+    EXPECT_EQ(true_value.type(), json::value_t::Boolean);
+    EXPECT_EQ(false_value.type(), json::value_t::Boolean);
+    EXPECT_EQ(bool_constructed.type(), json::value_t::Boolean);
 }
 
 TEST_F(boolean, constructor_preserves_value) {

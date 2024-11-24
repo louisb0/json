@@ -20,10 +20,10 @@ protected:
 
 // construction
 TEST_F(array, constructor_creates_array) {
-    EXPECT_EQ(empty.type(), json::value::Type::Array);
-    EXPECT_EQ(numbers.type(), json::value::Type::Array);
-    EXPECT_EQ(mixed.type(), json::value::Type::Array);
-    EXPECT_EQ(nested.type(), json::value::Type::Array);
+    EXPECT_EQ(empty.type(), json::value_t::Array);
+    EXPECT_EQ(numbers.type(), json::value_t::Array);
+    EXPECT_EQ(mixed.type(), json::value_t::Array);
+    EXPECT_EQ(nested.type(), json::value_t::Array);
 }
 
 TEST_F(array, constructor_preserves_values) {

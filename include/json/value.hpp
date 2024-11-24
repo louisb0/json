@@ -20,10 +20,10 @@ public:
     explicit operator bool() const noexcept { return ptr != nullptr; }
 };
 
+enum class value_t { Null, Boolean, Number, String, Array, Object };
+
 class value {
 public:
-    enum class Type { Null, Boolean, Number, String, Array, Object };
-
     [[nodiscard]] value();
     [[nodiscard]] value(std::nullptr_t);
     [[nodiscard]] value(bool value);
@@ -44,7 +44,7 @@ public:
     static value array();
     static value array(std::vector<value> values);
 
-    [[nodiscard]] Type type() const noexcept;
+    [[nodiscard]] value_t type() const noexcept;
     [[nodiscard]] bool is_null() const noexcept;
     [[nodiscard]] bool is_boolean() const noexcept;
     [[nodiscard]] bool is_number() const noexcept;

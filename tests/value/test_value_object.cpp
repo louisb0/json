@@ -19,9 +19,9 @@ protected:
 
 // construction
 TEST_F(object, constructor_creates_object) {
-    EXPECT_EQ(empty.type(), json::value::Type::Object);
-    EXPECT_EQ(simple.type(), json::value::Type::Object);
-    EXPECT_EQ(nested.type(), json::value::Type::Object);
+    EXPECT_EQ(empty.type(), json::value_t::Object);
+    EXPECT_EQ(simple.type(), json::value_t::Object);
+    EXPECT_EQ(nested.type(), json::value_t::Object);
 }
 
 TEST_F(object, constructor_preserves_values) {

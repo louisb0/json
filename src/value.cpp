@@ -11,14 +11,14 @@
 namespace json {
 
 struct value::storage {
-    Type type;
+    value_t type;
     std::variant<std::nullptr_t, bool, double, std::string, std::vector<value>,
                  std::unordered_map<std::string, value>>
         data;
 
-    storage() : type(Type::Null), data(nullptr) {}
+    storage() : type(value_t::Null), data(nullptr) {}
 
-    template <typename T> static storage create(Type t, T &&value) {
+    template <typename T> static storage create(value_t t, T &&value) {
         storage s;
         s.type = t;
         s.data = std::forward<T>(value);
@@ -31,29 +31,29 @@ value::value() : m_storage(std::make_unique<storage>()) {}
 value::value(std::nullptr_t) : value() {}
 
 value::value(bool value)
-    : m_storage(std::make_unique<storage>(storage::create(Type::Boolean, value))) {}
+    : m_storage(std::make_unique<storage>(storage::create(value_t::Boolean, value))) {}
 
 value::value(int value)
     : m_storage(
-          std::make_unique<storage>(storage::create(Type::Number, static_cast<double>(value)))) {}
+          std::make_unique<storage>(storage::create(value_t::Number, static_cast<double>(value)))) {}
 value::value(double value)
-    : m_storage(std::make_unique<storage>(storage::create(Type::Number, value))) {}
+    : m_storage(std::make_unique<storage>(storage::create(value_t::Number, value))) {}
 
 value::value(const char *value)
-    : m_storage(std::make_unique<storage>(storage::create(Type::String, std::string(value)))) {}
+    : m_storage(std::make_unique<storage>(storage::create(value_t::String, std::string(value)))) {}
 
 value::value(std::string value)
-    : m_storage(std::make_unique<storage>(storage::create(Type::String, std::move(value)))) {}
+    : m_storage(std::make_unique<storage>(storage::create(value_t::String, std::move(value)))) {}
 
 value::value(std::vector<value> values)
-    : m_storage(std::make_unique<storage>(storage::create(Type::Array, std::move(values)))) {}
+    : m_storage(std::make_unique<storage>(storage::create(value_t::Array, std::move(values)))) {}
 
 value::value(std::unordered_map<std::string, value> values)
-    : m_storage(std::make_unique<storage>(storage::create(Type::Object, std::move(values)))) {}
+    : m_storage(std::make_unique<storage>(storage::create(value_t::Object, std::move(values)))) {}
 
 value::value(std::initializer_list<std::pair<std::string, value>> init)
     : m_storage(std::make_unique<storage>(storage::create(
-          Type::Object, std::unordered_map<std::string, value>(init.begin(), init.end())))) {}
+          value_t::Object, std::unordered_map<std::string, value>(init.begin(), init.end())))) {}
 
 value::value(const value &other) : m_storage(std::make_unique<storage>(*other.m_storage)) {}
 
@@ -82,28 +82,28 @@ value value::array() { return value(std::vector<value>{}); }
 
 value value::array(std::vector<value> values) { return value(std::move(values)); }
 
-value::Type value::type() const noexcept { return m_storage->type; }
+value_t value::type() const noexcept { return m_storage->type; }
 
-bool value::is_null() const noexcept { return type() == Type::Null; }
-bool value::is_boolean() const noexcept { return type() == Type::Boolean; }
-bool value::is_number() const noexcept { return type() == Type::Number; }
-bool value::is_string() const noexcept { return type() == Type::String; }
-bool value::is_array() const noexcept { return type() == Type::Array; }
-bool value::is_object() const noexcept { return type() == Type::Object; }
+bool value::is_null() const noexcept { return type() == value_t::Null; }
+bool value::is_boolean() const noexcept { return type() == value_t::Boolean; }
+bool value::is_number() const noexcept { return type() == value_t::Number; }
+bool value::is_string() const noexcept { return type() == value_t::String; }
+bool value::is_array() const noexcept { return type() == value_t::Array; }
+bool value::is_object() const noexcept { return type() == value_t::Object; }
 
-[[nodiscard]] static std::string type_name(value::Type t) {
+[[nodiscard]] static std::string type_name(value_t t) {
     switch (t) {
-    case value::Type::Null:
+    case value_t::Null:
         return "null";
-    case value::Type::Boolean:
+    case value_t::Boolean:
         return "boolean";
-    case value::Type::Number:
+    case value_t::Number:
         return "number";
-    case value::Type::String:
+    case value_t::String:
         return "string";
-    case value::Type::Array:
+    case value_t::Array:
         return "array";
-    case value::Type::Object:
+    case value_t::Object:
         return "object";
     }
     return "unknown";
@@ -111,7 +111,7 @@ bool value::is_object() const noexcept { return type() == Type::Object; }
 
 bool value::as_boolean() const {
     if (!is_boolean()) {
-        throw type_error(type_name(Type::Boolean), type_name(type()));
+        throw type_error(type_name(value_t::Boolean), type_name(type()));
     }
 
     return std::get<bool>(m_storage->data);
@@ -119,7 +119,7 @@ bool value::as_boolean() const {
 
 double value::as_number() const {
     if (!is_number()) {
-        throw type_error(type_name(Type::Number), type_name(type()));
+        throw type_error(type_name(value_t::Number), type_name(type()));
     }
 
     return std::get<double>(m_storage->data);
@@ -127,7 +127,7 @@ double value::as_number() const {
 
 const std::string &value::as_string() const {
     if (!is_string()) {
-        throw type_error(type_name(Type::String), type_name(type()));
+        throw type_error(type_name(value_t::String), type_name(type()));
     }
 
     return std::get<std::string>(m_storage->data);
@@ -135,7 +135,7 @@ const std::string &value::as_string() const {
 
 const std::vector<value> &value::as_array() const {
     if (!is_array()) {
-        throw type_error(type_name(Type::Array), type_name(type()));
+        throw type_error(type_name(value_t::Array), type_name(type()));
     }
 
     return std::get<std::vector<value>>(m_storage->data);
@@ -143,7 +143,7 @@ const std::vector<value> &value::as_array() const {
 
 const std::unordered_map<std::string, value> &value::as_object() const {
     if (!is_object()) {
-        throw type_error(type_name(Type::Object), type_name(type()));
+        throw type_error(type_name(value_t::Object), type_name(type()));
     }
 
     return std::get<std::unordered_map<std::string, value>>(m_storage->data);
@@ -151,7 +151,7 @@ const std::unordered_map<std::string, value> &value::as_object() const {
 
 std::string &value::as_string() {
     if (!is_string()) {
-        throw type_error(type_name(Type::String), type_name(type()));
+        throw type_error(type_name(value_t::String), type_name(type()));
     }
 
     return std::get<std::string>(m_storage->data);
@@ -159,7 +159,7 @@ std::string &value::as_string() {
 
 std::vector<value> &value::as_array() {
     if (!is_array()) {
-        throw type_error(type_name(Type::Array), type_name(type()));
+        throw type_error(type_name(value_t::Array), type_name(type()));
     }
 
     return std::get<std::vector<value>>(m_storage->data);
@@ -167,7 +167,7 @@ std::vector<value> &value::as_array() {
 
 std::unordered_map<std::string, value> &value::as_object() {
     if (!is_object()) {
-        throw type_error(type_name(Type::Object), type_name(type()));
+        throw type_error(type_name(value_t::Object), type_name(type()));
     }
 
     return std::get<std::unordered_map<std::string, value>>(m_storage->data);
@@ -212,25 +212,8 @@ const value &value::operator[](size_t index) const {
     return arr[index];
 }
 
-value &value::operator[](const std::string &key) {
-    auto &obj = as_object();
-    auto it = obj.find(key);
-    if (it == obj.end()) {
-        throw access_error("Key '" + key + "' not found in object.");
-    }
-
-    return it->second;
-}
-
-const value &value::operator[](const std::string &key) const {
-    auto &obj = as_object();
-    auto it = obj.find(key);
-    if (it == obj.end()) {
-        throw access_error("Key '" + key + "' not found in object.");
-    }
-
-    return it->second;
-}
+value &value::operator[](const std::string &key) { return as_object()[key]; }
+const value &value::operator[](const std::string &key) const { return as_object().at(key); }
 
 bool value::operator==(const value &other) const noexcept {
     if (type() != other.type()) {

@@ -20,10 +20,10 @@ protected:
 
 // construction
 TEST_F(string, constructor_creates_string) {
-    EXPECT_EQ(empty.type(), json::value::Type::String);
-    EXPECT_EQ(simple.type(), json::value::Type::String);
-    EXPECT_EQ(const_char.type(), json::value::Type::String);
-    EXPECT_EQ(std_string.type(), json::value::Type::String);
+    EXPECT_EQ(empty.type(), json::value_t::String);
+    EXPECT_EQ(simple.type(), json::value_t::String);
+    EXPECT_EQ(const_char.type(), json::value_t::String);
+    EXPECT_EQ(std_string.type(), json::value_t::String);
 }
 
 TEST_F(string, constructor_preserves_value) {

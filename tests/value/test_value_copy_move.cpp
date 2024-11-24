@@ -100,7 +100,7 @@ TEST_F(value_copy_move, self_operations_are_handled) {
     EXPECT_EQ(val, nested_value);
 
     val = std::move(val);
-    EXPECT_TRUE(val.type() == json::value::Type::Object);
+    EXPECT_TRUE(val.type() == json::value_t::Object);
 }
 
 TEST_F(value_copy_move, chained_assignment_works) {
