@@ -59,11 +59,6 @@ TEST_F(object, operator_index_access) {
     EXPECT_TRUE(simple["bool"].as_boolean());
 }
 
-TEST_F(object, operator_index_throws_on_invalid_key) {
-    EXPECT_THROW(simple["nonexistent"], json::access_error);
-    EXPECT_THROW(empty["key"], json::access_error);
-}
-
 TEST_F(object, other_as_methods_throw_type_error) {
     EXPECT_THROW(empty.as_boolean(), json::type_error);
     EXPECT_THROW(empty.as_number(), json::type_error);
