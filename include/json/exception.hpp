@@ -10,6 +10,11 @@ public:
     explicit exception(const char *message);
 };
 
+class parse_error : public exception {
+public:
+    parse_error(const std::string &message, size_t line);
+};
+
 class type_error : public exception {
 public:
     type_error(const std::string &expected_type, const std::string &actual_type);

@@ -4,7 +4,7 @@ CXXFLAGS := -std=c++17 -Wall -Wextra -Werror -I./include
 LDFLAGS :=
 
 # Test-specific flags (disable nodiscard warnings)
-TEST_EXTRA_FLAGS := -Wno-nodiscard -Wno-unused-result
+TEST_EXTRA_FLAGS := -g -Wno-nodiscard -Wno-unused-result
 
 # Google Test flags
 TEST_LIBS := -lgtest -lgtest_main -pthread
