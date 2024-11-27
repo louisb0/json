@@ -36,3 +36,4 @@ build/
 lib/
 .cache/
 a_old/
+examples/data
