@@ -1,5 +1,9 @@
 #pragma once
 
+// stream support
+// iterator support
+// implicit cast / conversion operators
+
 #include <memory>
 #include <optional>
 #include <string>
@@ -69,6 +73,8 @@ public:
     [[nodiscard]] non_owning<const std::unordered_map<std::string, value>>
     try_object() const noexcept;
 
+    std::string stringify() const noexcept;
+
     value &operator[](size_t index);
     const value &operator[](size_t index) const;
     value &operator[](const std::string &key);
@@ -81,6 +87,8 @@ private:
     struct storage;
     std::unique_ptr<storage> m_storage;
 };
+
+std::ostream &operator<<(std::ostream &os, const value &v) noexcept;
 
 inline value object() { return value(std::unordered_map<std::string, value>()); }
 inline value object(std::initializer_list<std::pair<std::string, value>> init) {

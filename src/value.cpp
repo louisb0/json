@@ -3,7 +3,9 @@
 
 #include <cstddef>
 #include <initializer_list>
+#include <iomanip>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -52,6 +54,9 @@ value::value(std::vector<value> values)
 value::value(std::unordered_map<std::string, value> values)
     : m_storage(std::make_unique<storage>(storage::create(value_t::Object, std::move(values)))) {}
 
+// TODO(louis): we can only have one of array/object due to constructor ambiuguity without a bunch
+// more work. does it make sense for it to be object and not array? should we have either both
+// or none?
 value::value(std::initializer_list<std::pair<std::string, value>> init)
     : m_storage(std::make_unique<storage>(storage::create(
           value_t::Object, std::unordered_map<std::string, value>(init.begin(), init.end())))) {}
@@ -91,6 +96,58 @@ bool value::is_number() const noexcept { return type() == value_t::Number; }
 bool value::is_string() const noexcept { return type() == value_t::String; }
 bool value::is_array() const noexcept { return type() == value_t::Array; }
 bool value::is_object() const noexcept { return type() == value_t::Object; }
+
+std::string value::stringify() const noexcept {
+    switch (type()) {
+    case value_t::Null:
+        return "null";
+    case value_t::Boolean:
+        return as_boolean() ? "true" : "false";
+    case value_t::Number: {
+        std::stringstream ss;
+        double num = as_number();
+
+        ss << std::fixed << std::setprecision(10) << num;
+        std::string str = ss.str();
+
+        str.erase(str.find_last_not_of('0') + 1);
+        if (str.back() == '.') {
+            str.pop_back();
+        }
+
+        return str;
+    }
+    case value_t::String:
+        return "\"" + as_string() + "\"";
+    case value_t::Array: {
+        const auto &arr = as_array();
+        std::string res = "[";
+        for (std::size_t i = 0; i < arr.size(); i++) {
+            if (i > 0)
+                res += ", ";
+            res += arr[i].stringify();
+        }
+        res += "]";
+        return res;
+    }
+    case value_t::Object: {
+        const auto &obj = as_object();
+        std::string res = "{";
+        bool first = true;
+        for (const auto &[key, val] : obj) {
+            if (!first)
+                res += ", ";
+
+            res += "\"" + key + "\": " + val.stringify();
+            first = false;
+        }
+        res += "}";
+        return res;
+    }
+    default:
+        return "???"; // preferably some kind of unreachable macro to blow everything up
+    }
+}
 
 [[nodiscard]] static std::string type_name(value_t t) {
     switch (t) {
@@ -237,5 +294,7 @@ bool value::operator==(const value &other) const noexcept {
 }
 
 bool value::operator!=(const value &other) const noexcept { return !(*this == other); }
+
+std::ostream &operator<<(std::ostream &os, const value &v) noexcept { return os << v.stringify(); }
 
 } // namespace json

@@ -119,3 +119,10 @@ TEST_F(null, chained_assignment_works) {
     EXPECT_TRUE(b.is_null());
     EXPECT_TRUE(c.is_null());
 }
+
+// display
+TEST_F(null, string_and_streams) {
+    std::stringstream ss;
+    ss << default_constructed;
+    EXPECT_EQ(ss.str(), "null");
+}

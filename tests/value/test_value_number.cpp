@@ -100,3 +100,10 @@ TEST_F(number, not_equals_other_types) {
     EXPECT_NE(int_value, json::array());
     EXPECT_NE(int_value, json::object({}));
 }
+
+// display
+TEST_F(number, string_and_streams) {
+    std::stringstream ss;
+    ss << int_value << " " << double_value << " " << negative;
+    EXPECT_EQ(ss.str(), "42 3.14 -1");
+}

@@ -108,3 +108,10 @@ TEST_F(string, handles_empty_string) {
     EXPECT_TRUE(empty.is_string());
     EXPECT_EQ(empty.as_string().length(), 0);
 }
+
+// display
+TEST_F(string, string_and_streams) {
+    std::stringstream ss;
+    ss << simple;
+    EXPECT_EQ(ss.str(), "\"test\"");
+}

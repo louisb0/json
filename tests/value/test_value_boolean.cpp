@@ -93,3 +93,10 @@ TEST_F(boolean, not_equals_other_types) {
     EXPECT_NE(true_value, json::array());
     EXPECT_NE(true_value, json::object({}));
 }
+
+// display
+TEST_F(boolean, string_and_streams) {
+    std::stringstream ss;
+    ss << true_value << false_value;
+    EXPECT_EQ(ss.str(), "truefalse");
+}

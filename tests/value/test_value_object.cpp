@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "json/exception.hpp"
+#include "json/parser.hpp"
 #include "json/value.hpp"
 
 class object : public ::testing::Test {
@@ -122,3 +123,14 @@ TEST_F(object, nested_array_access) {
 }
 
 TEST_F(object, nested_object_access) { EXPECT_EQ(nested["object"]["nested"].as_string(), "value"); }
+
+// display
+TEST_F(object, string_and_streams) {
+    std::stringstream ss;
+    ss << simple;
+
+    // uses parse and value equality as the map k/v's are unordered
+    json::value parsed1 = json::parse(ss.str());
+    json::value parsed2 = json::parse(R"({"number": 42, "string": "test", "bool": true})");
+    EXPECT_EQ(parsed1, parsed2);
+}

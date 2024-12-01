@@ -2,6 +2,7 @@
 
 #include "json/exception.hpp"
 #include "json/value.hpp"
+#include <sstream>
 
 class array : public ::testing::Test {
 protected:
@@ -109,4 +110,11 @@ TEST_F(array, not_equals_other_types) {
     EXPECT_NE(empty, json::value(42));
     EXPECT_NE(empty, json::value("[]"));
     EXPECT_NE(empty, json::object({}));
+}
+
+// display
+TEST_F(array, string_and_streams) {
+    std::stringstream ss;
+    ss << mixed;
+    EXPECT_EQ(ss.str(), "[true, \"test\", 42]");
 }
