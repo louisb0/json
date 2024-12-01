@@ -1,3 +1,4 @@
+#include "profiler/profiler.hpp"
 #include "json/parser.hpp"
 #include "json/value.hpp"
 
@@ -29,6 +30,8 @@ double haversine(double x0, double y0, double x1, double y1, double radius) {
 }
 
 int main(int argc, char *argv[]) {
+    profiler::start_profile();
+
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <json_path>" << std::endl;
         return 1;
@@ -36,11 +39,15 @@ int main(int argc, char *argv[]) {
 
     json::value json = json::parse_file(argv[1]);
 
-    double total = 0;
-    for (auto val : json["pairs"].as_array()) {
-        total += haversine(val["x0"].as_number(), val["y0"].as_number(), val["x1"].as_number(),
-                           val["y1"].as_number(), 6371000);
+    {
+        PROFILE_BLOCK("computation");
+        double total = 0;
+        for (auto val : json["pairs"].as_array()) {
+            total += haversine(val["x0"].as_number(), val["y0"].as_number(), val["x1"].as_number(),
+                               val["y1"].as_number(), 6371000);
+        }
+        std::cout << std::setprecision(15) << total;
     }
 
-    std::cout << std::setprecision(15) << total;
+    profiler::end_and_print_profile();
 }

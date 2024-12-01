@@ -1,4 +1,5 @@
 #include "json/parser.hpp"
+#include "profiler/profiler.hpp"
 #include "json/exception.hpp"
 
 #include <cassert>
@@ -17,6 +18,8 @@ public:
     parser(std::string json) : m_src(json), m_pos(0), m_line(1) {}
 
     [[nodiscard]] value parse() {
+        PROFILE_FUNCTION();
+
         skip_whitespace();
         if (is_at_end()) {
             throw parse_error("Empty input.", m_line);
@@ -34,6 +37,8 @@ public:
 
 private:
     value parse_value() {
+        PROFILE_FUNCTION();
+
         skip_whitespace();
         if (is_at_end()) {
             throw parse_error("Unexpected end of input.", m_line);
@@ -64,6 +69,8 @@ private:
     }
 
     bool parse_boolean() {
+        PROFILE_FUNCTION();
+
         if (peek() == 't') {
             consume("true", "Expected 'true'.");
             return true;
@@ -76,6 +83,8 @@ private:
     }
 
     std::string parse_string() {
+        PROFILE_FUNCTION();
+
         consume('"', "Expected start of string.");
 
         std::string result;
@@ -88,6 +97,8 @@ private:
     }
 
     std::vector<value> parse_array() {
+        PROFILE_FUNCTION();
+
         consume('[', "Expected start of array.");
 
         auto arr = std::vector<value>();
@@ -113,6 +124,8 @@ private:
     }
 
     std::unordered_map<std::string, value> parse_object() {
+        PROFILE_FUNCTION();
+
         consume('{', "Expected start of object.");
 
         auto obj = std::unordered_map<std::string, value>();
@@ -144,6 +157,8 @@ private:
     }
 
     double parse_number() {
+        PROFILE_FUNCTION();
+
         assert(peek() == '-' || std::isdigit(peek()));
         std::string result;
 
@@ -183,6 +198,8 @@ private:
     }
 
     void consume(char expected, const std::string &message) {
+        PROFILE_FUNCTION();
+
         if (is_at_end() || peek() != expected) {
             throw parse_error(message, m_line);
         }
@@ -191,6 +208,8 @@ private:
     }
 
     void consume(const std::string &expected, const std::string &message) {
+        PROFILE_FUNCTION();
+
         for (char c : expected) {
             if (is_at_end() || peek() != c) {
                 throw parse_error(message, m_line);
@@ -201,6 +220,8 @@ private:
     }
 
     [[nodiscard]] bool match(char expected) {
+        PROFILE_FUNCTION();
+
         if (is_at_end() || peek() != expected) {
             return false;
         }
@@ -209,9 +230,15 @@ private:
         return true;
     }
 
-    [[nodiscard]] char peek() { return is_at_end() ? '\0' : m_src[m_pos]; }
+    [[nodiscard]] char peek() {
+        PROFILE_FUNCTION();
+
+        return is_at_end() ? '\0' : m_src[m_pos];
+    }
 
     char advance() {
+        PROFILE_FUNCTION();
+
         if (is_at_end()) {
             throw parse_error("Unexpected end of input.", m_line);
         }
@@ -219,9 +246,15 @@ private:
         return m_src[m_pos++];
     }
 
-    [[nodiscard]] bool is_at_end() const { return m_pos >= m_src.length(); }
+    [[nodiscard]] bool is_at_end() const {
+        PROFILE_FUNCTION();
+
+        return m_pos >= m_src.length();
+    }
 
     void skip_whitespace() {
+        PROFILE_FUNCTION();
+
         while (!is_at_end() && std::isspace(peek())) {
             if (peek() == '\n') {
                 m_line++;
@@ -235,6 +268,8 @@ private:
 value parse(const std::string &json) { return parser(json).parse(); }
 
 value parse_file(const std::string &path) {
+    PROFILE_FUNCTION();
+
     std::ifstream file(path);
     if (!file.is_open()) {
         throw parse_error("Unable to open file at '" + path + "'.", 0);
