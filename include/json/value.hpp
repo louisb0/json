@@ -1,9 +1,5 @@
 #pragma once
 
-// stream support
-// iterator support
-// implicit cast / conversion operators
-
 #include <memory>
 #include <optional>
 #include <string>
