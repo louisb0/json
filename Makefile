@@ -1,5 +1,6 @@
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Werror -I./include
+PROFILE ?= 0
+CXXFLAGS := -std=c++17 -Wall -Wextra -Werror -I./include -DPROFILER=$(PROFILE)
 LDFLAGS :=
 
 TEST_EXTRA_FLAGS := -g -Wno-nodiscard -Wno-unused-result
@@ -11,6 +12,13 @@ TEST_DIR := tests
 EXAMPLES_DIR := examples
 BUILD_DIR := build
 DEP_DIR := $(BUILD_DIR)/deps
+
+PROFILE_FILE := $(BUILD_DIR)/.profile
+$(shell mkdir -p $(BUILD_DIR))
+PREV_PROFILE := $(shell cat $(PROFILE_FILE) 2>/dev/null)
+ifneq ($(PROFILE),$(PREV_PROFILE))
+    $(shell echo $(PROFILE) > $(PROFILE_FILE))
+endif
 
 SRC_FILES := $(shell find $(SRC_DIR) -name '*.cpp')
 TEST_FILES := $(shell find $(TEST_DIR) -name '*.cpp')
@@ -37,17 +45,17 @@ all: $(LIB)
 $(BUILD_DIR) $(DEP_DIR) $(DEP_DIR)/$(SRC_DIR) $(DEP_DIR)/$(TEST_DIR) $(DEP_DIR)/$(EXAMPLES_DIR) $(BUILD_DIR)/$(SRC_DIR) $(BUILD_DIR)/$(TEST_DIR) $(BUILD_DIR)/$(EXAMPLES_DIR):
 	mkdir -p $@
 
-$(BUILD_DIR)/$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR) $(DEP_DIR)
+$(BUILD_DIR)/$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp $(PROFILE_FILE) | $(BUILD_DIR) $(DEP_DIR)
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(DEP_DIR)/$(SRC_DIR)/$*.d)
 	$(CXX) $(CXXFLAGS) -MMD -MP -MF $(DEP_DIR)/$(SRC_DIR)/$*.d -c $< -o $@
 
-$(BUILD_DIR)/$(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp | $(BUILD_DIR) $(DEP_DIR)
+$(BUILD_DIR)/$(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp $(PROFILE_FILE) | $(BUILD_DIR) $(DEP_DIR)
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(DEP_DIR)/$(TEST_DIR)/$*.d)
 	$(CXX) $(CXXFLAGS) $(TEST_EXTRA_FLAGS) -MMD -MP -MF $(DEP_DIR)/$(TEST_DIR)/$*.d -c $< -o $@
 
-$(BUILD_DIR)/$(EXAMPLES_DIR)/%.o: $(EXAMPLES_DIR)/%.cpp | $(BUILD_DIR) $(DEP_DIR)
+$(BUILD_DIR)/$(EXAMPLES_DIR)/%.o: $(EXAMPLES_DIR)/%.cpp $(PROFILE_FILE) | $(BUILD_DIR) $(DEP_DIR)
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(DEP_DIR)/$(EXAMPLES_DIR)/$*.d)
 	$(CXX) $(CXXFLAGS) -MMD -MP -MF $(DEP_DIR)/$(EXAMPLES_DIR)/$*.d -c $< -o $@
