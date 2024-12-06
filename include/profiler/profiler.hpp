@@ -31,6 +31,7 @@ struct profile_anchor {
     u64 hits;
     u64 tsc_elapsed_exclusive;
     u64 tsc_elapsed_inclusive;
+    u64 processed_byte_count;
 };
 
 extern u32 global_profiler_parent_index;
@@ -38,7 +39,7 @@ extern profile_anchor anchors[4096];
 
 class profile_block {
 public:
-    profile_block(const char *name, u32 anchor_index);
+    profile_block(const char *name, u32 anchor_index, u64 processed_byte_count);
     ~profile_block();
 
     profile_block(const profile_block &) = delete;
@@ -62,14 +63,17 @@ constexpr u32 hash(const char *str) {
     return (hash % 4095) + 1;
 }
 
+// TODO(louis): this interface sucks and there's no throughput on fn profiling pls fix
 #define CONCAT2(A, B) A##B
 #define CONCAT(A, B) CONCAT2(A, B)
-#define PROFILE_BLOCK(name)                                                                         \
-    profiler::profile_block CONCAT(block, __LINE__)(name, profiler::hash(name))
+#define PROFILE_BANDWIDTH(name, bytes)                                                              \
+    profiler::profile_block CONCAT(block, __LINE__)(name, profiler::hash(name), bytes)
+#define PROFILE_BLOCK(name) PROFILE_BANDWIDTH(name, 0)
 #define PROFILE_FUNCTION() PROFILE_BLOCK(__func__)
 
 #else
 
+#define PROFILE_BANDWIDTH(name, bytes)
 #define PROFILE_BLOCK(name)
 #define PROFILE_FUNCTION()
 

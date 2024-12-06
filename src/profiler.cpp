@@ -15,13 +15,14 @@ profiler global_profiler = {};
 profile_anchor anchors[4096] = {};
 u32 global_profiler_parent_index = 0;
 
-profile_block::profile_block(const char *name, u32 anchor_index) {
+profile_block::profile_block(const char *name, u32 anchor_index, u64 processed_byte_count) {
     m_name = name;
     m_anchor_index = anchor_index;
     m_parent_index = global_profiler_parent_index;
 
     profile_anchor *anchor = anchors + anchor_index;
     m_old_tsc_elapsed_inclusive = anchor->tsc_elapsed_inclusive;
+    anchor->processed_byte_count += processed_byte_count;
 
     global_profiler_parent_index = m_anchor_index;
     m_start_tsc = __rdtsc();
@@ -82,24 +83,45 @@ void end_and_print_profile() {
         return anchors[a].tsc_elapsed_exclusive > anchors[b].tsc_elapsed_exclusive;
     });
 
-    std::cout << std::left << std::setw(20) << "Function" << std::right << std::setw(8) << "Calls"
-              << std::setw(12) << "Time(ms)" << std::setw(12) << "Self(%)" << std::setw(12)
-              << "Total(%)" << '\n'
-              << std::string(64, '-') << '\n';
+    constexpr double BYTES_TO_GBPS = 8.0 / (1024 * 1024 * 1024); // Convert B/s to Gbps
+
+    // clang-format off
+    std::cout << std::left << std::setw(20) << "Function" 
+              << std::right << std::setw(8) << "Calls"
+              << std::setw(12) << "Time(ms)" 
+              << std::setw(12) << "Self(%)" 
+              << std::setw(12) << "Total(%)"
+              << std::setw(12) << "Gbps"
+              << '\n'
+              << std::string(76, '-') << '\n';
+    // clang-format on
 
     for (size_t idx : anchor_indices) {
         const auto &anchor = anchors[idx];
-        double ms = 1000.0 * anchor.tsc_elapsed_exclusive / cpu_freq;
+        double seconds = anchor.tsc_elapsed_exclusive / static_cast<double>(cpu_freq);
+        double ms = 1000.0 * seconds;
         double self_percent = 100.0 * anchor.tsc_elapsed_exclusive / cpu_elapsed;
         double total_percent = 100.0 * anchor.tsc_elapsed_inclusive / cpu_elapsed;
 
-        std::cout << std::left << std::setw(20) << anchor.name << std::right << std::setw(8)
-                  << anchor.hits << std::fixed << std::setprecision(4) << std::setw(12) << ms
-                  << std::setw(11) << self_percent << '%' << std::setw(12)
+        double throughput = 0.0;
+        if (seconds > 0 && anchor.processed_byte_count > 0) {
+            throughput = (anchor.processed_byte_count / seconds) * BYTES_TO_GBPS;
+        }
+
+        // clang-format off
+        std::cout << std::left << std::setw(20) << anchor.name 
+                  << std::right << std::setw(8) << anchor.hits 
+                  << std::fixed << std::setprecision(4) 
+                  << std::setw(12) << ms
+                  << std::setw(11) << self_percent << '%'
+                  << std::setw(12)
                   << (anchor.tsc_elapsed_inclusive != anchor.tsc_elapsed_exclusive
                           ? std::to_string(total_percent) + "%"
                           : "-")
+                  << std::setw(12)
+                  << (throughput > 0 ? std::to_string(throughput) : "-")
                   << '\n';
+        // clang-format on
     }
 #endif
 }

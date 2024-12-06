@@ -32,20 +32,27 @@ double haversine(double x0, double y0, double x1, double y1, double radius) {
 int main(int argc, char *argv[]) {
     profiler::start_profile();
 
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <json_path>" << std::endl;
-        return 1;
-    }
-
-    json::value json = json::parse_file(argv[1]);
-
     {
-        PROFILE_BLOCK("computation");
-        double total = 0;
-        for (auto val : json["pairs"].as_array()) {
-            total += haversine(val["x0"].as_number(), val["y0"].as_number(), val["x1"].as_number(),
-                               val["y1"].as_number(), 6371000);
+        PROFILE_BLOCK("main");
+
+        if (argc != 2) {
+            std::cerr << "Usage: " << argv[0] << " <json_path>" << std::endl;
+            return 1;
         }
+
+        json::value json = json::parse_file(argv[1]);
+        std::vector<json::value> pairs = json["pairs"].as_array();
+
+        double total = 0;
+        {
+            PROFILE_BANDWIDTH("sum", pairs.size() * sizeof(json::value));
+
+            for (auto val : pairs) {
+                total += haversine(val["x0"].as_number(), val["y0"].as_number(),
+                                   val["x1"].as_number(), val["y1"].as_number(), 6371000);
+            }
+        }
+
         std::cout << std::setprecision(15) << total;
     }
 
